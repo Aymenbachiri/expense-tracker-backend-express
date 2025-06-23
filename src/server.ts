@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import HomeRoute from '../src/routes/home';
 import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
 
@@ -12,10 +13,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(rateLimiter);
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello World!' });
-});
+(async () => {
+  try {
+    app.use('/api', HomeRoute);
 
-app.listen(PORT, () => {
-  console.log(`Server is running http://localhost:${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server is running http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Server error', error);
+  }
+})();
