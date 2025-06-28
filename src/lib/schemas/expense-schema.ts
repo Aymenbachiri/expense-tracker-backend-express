@@ -67,27 +67,19 @@ export const updateExpenseSchema = z.object({
       .transform((val) => new Date(val))
       .optional(),
   }),
-  params: z.object({
-    id: objectIdValidator,
-  }),
+  params: z.object({ id: objectIdValidator }),
 });
 
 export const getExpenseSchema = z.object({
-  params: z.object({
-    id: objectIdValidator,
-  }),
+  params: z.object({ id: objectIdValidator }),
 });
 
 export const deleteExpenseSchema = z.object({
-  params: z.object({
-    id: objectIdValidator,
-  }),
+  params: z.object({ id: objectIdValidator }),
 });
 
 export const getExpensesByCategorySchema = z.object({
-  params: z.object({
-    categoryId: objectIdValidator,
-  }),
+  params: z.object({ categoryId: objectIdValidator }),
 });
 
 export const getExpensesQuerySchema = z.object({
