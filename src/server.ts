@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import HomeRoute from './routes/home-route';
 import CategoryRoute from './routes/category-route';
 import ExpenseRoute from './routes/expense-route';
+import AnalyticsRoute from './routes/analytics-route';
 import BudgetRoute from './routes/budget-route';
 import swaggerUi from 'swagger-ui-express';
 import { clerkMiddleware } from '@clerk/express';
@@ -43,6 +44,7 @@ app.use(
     app.use('/api/category', CategoryRoute);
     app.use('/api/expenses', ExpenseRoute);
     app.use('/api/budgets', BudgetRoute);
+    app.use('/api/analytics', AnalyticsRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running http://localhost:${PORT}`);
