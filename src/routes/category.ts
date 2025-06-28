@@ -7,7 +7,7 @@ import { requireAuth } from '@clerk/express';
 
 const router: Router = Router();
 
-router.get('/', getCategories);
+router.get('/', requireAuth(), getCategories);
 router.post('/', requireAuth(), createCategory);
 router.get('/:id', requireAuth(), getCategories);
 router.put('/:id', requireAuth(), updateCategory);

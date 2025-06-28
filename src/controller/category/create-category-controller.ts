@@ -1,5 +1,5 @@
-import Category from '../../lib/models/category';
-import { createCategorySchema } from '../../lib/schemas/category';
+import Category from '../../lib/models/category-model';
+import { createCategorySchema } from '../../lib/schemas/category-schema';
 import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 

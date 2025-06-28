@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
-import Category from '../../lib/models/category';
-import { updateCategorySchema } from '../../lib/schemas/category';
+import Category from '../../lib/models/category-model';
+import { updateCategorySchema } from '../../lib/schemas/category-schema';
 import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 

@@ -1,4 +1,4 @@
-import Category from '../../lib/models/category';
+import Category from '../../lib/models/category-model';
 import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
