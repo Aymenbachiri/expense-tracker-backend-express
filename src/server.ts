@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import HomeRoute from '../src/routes/home';
+import { clerkMiddleware } from '@clerk/express';
 import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
+import { connectToMongoDB } from './lib/db/mongoose';
 
 const app = express();
 
@@ -12,9 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(rateLimiter);
+app.use(clerkMiddleware());
 
 (async () => {
   try {
+    await connectToMongoDB();
+
     app.use('/api', HomeRoute);
 
     app.listen(PORT, () => {

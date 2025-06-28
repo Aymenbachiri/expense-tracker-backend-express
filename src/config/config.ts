@@ -2,4 +2,5 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const PORT = process.env.PORT || 3000;
+export const PORT: string = process.env.PORT!;
+export const MONGODB_URI: string = process.env.MONGODB_URI!;
