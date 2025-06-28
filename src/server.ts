@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import HomeRoute from './routes/home-route';
 import CategoryRoute from './routes/category-route';
 import ExpenseRoute from './routes/expense-route';
+import BudgetRoute from './routes/budget-route';
 import { clerkMiddleware } from '@clerk/express';
 import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
@@ -25,6 +26,7 @@ app.use(clerkMiddleware());
     app.use('/api', HomeRoute);
     app.use('/api/category', CategoryRoute);
     app.use('/api/expenses', ExpenseRoute);
+    app.use('/api/budgets', BudgetRoute);
 
     app.listen(PORT, () => {
       console.log(`Server is running http://localhost:${PORT}`);
