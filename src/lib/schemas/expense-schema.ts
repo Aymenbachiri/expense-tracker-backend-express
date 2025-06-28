@@ -1,12 +1,6 @@
 import { z } from 'zod';
 import { Types } from 'mongoose';
 
-const objectIdValidator = z
-  .string()
-  .refine((val) => Types.ObjectId.isValid(val), {
-    message: 'Invalid ObjectId format',
-  });
-
 export const createExpenseSchema = z.object({
   body: z.object({
     amount: z
@@ -29,7 +23,9 @@ export const createExpenseSchema = z.object({
       .max(500, 'Notes cannot be more than 500 characters')
       .trim()
       .optional(),
-    category: objectIdValidator,
+    category: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message: 'Invalid category ID format',
+    }),
     date: z
       .string()
       .datetime({ message: 'Invalid date format. Use ISO 8601 format' })
@@ -59,7 +55,12 @@ export const updateExpenseSchema = z.object({
       .max(500, 'Notes cannot be more than 500 characters')
       .trim()
       .optional(),
-    category: objectIdValidator.optional(),
+    category: z
+      .string()
+      .refine((val) => Types.ObjectId.isValid(val), {
+        message: 'Invalid category ID format',
+      })
+      .optional(),
     date: z
       .string()
       .datetime({ message: 'Invalid date format. Use ISO 8601 format' })
@@ -67,19 +68,36 @@ export const updateExpenseSchema = z.object({
       .transform((val) => new Date(val))
       .optional(),
   }),
-  params: z.object({ id: objectIdValidator }),
+  params: z.object({
+    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message: 'params.id must be a valid ObjectId in update expense',
+    }),
+  }),
 });
 
 export const getExpenseSchema = z.object({
-  params: z.object({ id: objectIdValidator }),
+  params: z.object({
+    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message: 'params.id must be a valid ObjectId in get expense',
+    }),
+  }),
 });
 
 export const deleteExpenseSchema = z.object({
-  params: z.object({ id: objectIdValidator }),
+  params: z.object({
+    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message: 'params.id must be a valid ObjectId in delete expense',
+    }),
+  }),
 });
 
 export const getExpensesByCategorySchema = z.object({
-  params: z.object({ categoryId: objectIdValidator }),
+  params: z.object({
+    categoryId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message:
+        'params.categoryId must be a valid ObjectId in get Expenses By Category',
+    }),
+  }),
 });
 
 export const getExpensesQuerySchema = z.object({
@@ -92,7 +110,12 @@ export const getExpensesQuerySchema = z.object({
       .string()
       .date('Invalid end date format. Use YYYY-MM-DD')
       .optional(),
-    category: objectIdValidator.optional(),
+    category: z
+      .string()
+      .refine((val) => Types.ObjectId.isValid(val), {
+        message: 'categoryId must be a valid ObjectId in get expense query',
+      })
+      .optional(),
     minAmount: z
       .string()
       .transform((val) => parseFloat(val))
