@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
-import Category from 'src/lib/models/category';
-import { updateCategorySchema } from 'src/lib/schemas/category';
+import Category from '../../lib/models/category';
+import { updateCategorySchema } from '../../lib/schemas/category';
+import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
 export async function updateCategory(
@@ -9,6 +10,7 @@ export async function updateCategory(
 ): Promise<void> {
   try {
     const { id } = req.params;
+    const { userId } = getAuth(req);
     if (!id) {
       res.status(400).json({
         success: false,
@@ -30,7 +32,7 @@ export async function updateCategory(
     const updateData = parse.data.body;
     if (updateData.name) {
       const existingCategory = await Category.findOne({
-        userId: req.userId,
+        userId,
         name: updateData.name,
         _id: { $ne: id },
       });
@@ -44,7 +46,6 @@ export async function updateCategory(
       }
     }
 
-    const userId = req.auth.userId;
     const updated = await Category.findOneAndUpdate(
       { _id: id, userId },
       { name: parse.data.body.name },

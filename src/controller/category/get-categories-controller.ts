@@ -1,4 +1,4 @@
-import Category from 'src/lib/models/category';
+import Category from '../../lib/models/category';
 import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
@@ -8,6 +8,13 @@ export async function getCategories(
 ): Promise<void> {
   try {
     const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
     const categories = await Category.find({ userId }).sort({
       createdAt: -1,
     });

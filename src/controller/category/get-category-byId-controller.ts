@@ -1,5 +1,6 @@
-import Category from 'src/lib/models/category';
+import Category from '../../lib/models/category';
 import { Types } from 'mongoose';
+import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
 export async function getCategoryById(
@@ -8,6 +9,7 @@ export async function getCategoryById(
 ): Promise<void> {
   try {
     const { id } = req.params;
+    const { userId } = getAuth(req);
     if (!id) {
       res.status(400).json({
         success: false,
@@ -20,10 +22,7 @@ export async function getCategoryById(
       return;
     }
 
-    const category = await Category.findOne({
-      _id: id,
-      userId: req.userId,
-    });
+    const category = await Category.findOne({ _id: id, userId });
 
     if (!category) {
       res.status(404).json({

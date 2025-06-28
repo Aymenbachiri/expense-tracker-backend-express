@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import Category from 'src/lib/models/category';
+import Category from '../../lib/models/category';
+import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
 export async function deleteCategory(
@@ -7,6 +8,7 @@ export async function deleteCategory(
   res: Response,
 ): Promise<void> {
   try {
+    const { userId } = getAuth(req);
     const { id } = req.params;
     if (!id) {
       res.status(400).json({
@@ -20,10 +22,7 @@ export async function deleteCategory(
       return;
     }
 
-    const category = await Category.findOneAndDelete({
-      _id: id,
-      userId: req.userId,
-    });
+    const category = await Category.findOneAndDelete({ _id: id, userId });
 
     if (!category) {
       res.status(404).json({

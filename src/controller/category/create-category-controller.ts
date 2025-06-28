@@ -1,13 +1,15 @@
-import Category from 'src/lib/models/category';
-import { createCategorySchema } from 'src/lib/schemas/category';
+import Category from '../../lib/models/category';
+import { createCategorySchema } from '../../lib/schemas/category';
+import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
 export async function createCategory(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const categoryData = req.body;
   try {
+    const { userId } = getAuth(req);
+    const categoryData = req.body;
     const parse = createCategorySchema.safeParse(categoryData);
     if (!parse.success) {
       res.status(400).json({
@@ -18,7 +20,7 @@ export async function createCategory(
     }
 
     const existingCategory = await Category.findOne({
-      userId: req.auth.userId,
+      userId,
       name: categoryData.name,
     });
 
@@ -30,10 +32,7 @@ export async function createCategory(
       return;
     }
 
-    const category = new Category({
-      ...categoryData,
-      userId: req.auth.userId,
-    });
+    const category = new Category({ ...categoryData, userId });
 
     await category.save();
 
