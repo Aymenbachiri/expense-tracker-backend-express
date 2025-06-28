@@ -9,6 +9,13 @@ export async function createCategory(
 ): Promise<void> {
   try {
     const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
     const categoryData = req.body;
     const parse = createCategorySchema.safeParse(categoryData);
     if (!parse.success) {

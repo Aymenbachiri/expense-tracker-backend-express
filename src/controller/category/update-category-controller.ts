@@ -11,6 +11,13 @@ export async function updateCategory(
   try {
     const { id } = req.params;
     const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
     if (!id) {
       res.status(400).json({
         success: false,

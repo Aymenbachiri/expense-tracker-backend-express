@@ -9,6 +9,13 @@ export async function deleteCategory(
 ): Promise<void> {
   try {
     const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
     const { id } = req.params;
     if (!id) {
       res.status(400).json({
