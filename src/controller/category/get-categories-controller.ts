@@ -1,4 +1,5 @@
 import Category from 'src/lib/models/category';
+import { getAuth } from '@clerk/express';
 import type { Request, Response } from 'express';
 
 export async function getCategories(
@@ -6,7 +7,8 @@ export async function getCategories(
   res: Response,
 ): Promise<void> {
   try {
-    const categories = await Category.find({ userId: req.auth.userId }).sort({
+    const { userId } = getAuth(req);
+    const categories = await Category.find({ userId }).sort({
       createdAt: -1,
     });
 
@@ -17,8 +19,9 @@ export async function getCategories(
     });
   } catch (error) {
     console.error('Failed to fetch categories:', error);
-    res
-      .status(500)
-      .json({ success: false, message: 'Failed to fetch categories' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories',
+    });
   }
 }
