@@ -1,3 +1,9 @@
+import Budget from '../../lib/models/budget-model';
+import { getAuth } from '@clerk/express';
+import { checkCategoryOwnership } from '../../lib/helpers/check-category-ownership';
+import { createBudgetSchema } from '../../lib/schemas/budget-schema';
+import type { Request, Response } from 'express';
+
 export async function createBudget(req: Request, res: Response): Promise<void> {
   try {
     const { userId } = getAuth(req);
@@ -20,7 +26,6 @@ export async function createBudget(req: Request, res: Response): Promise<void> {
 
     const budgetData = parse.data.body;
 
-    // Check if category belongs to user
     const category = await checkCategoryOwnership(budgetData.category, userId);
     if (!category) {
       res.status(404).json({
@@ -30,7 +35,6 @@ export async function createBudget(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Check if active budget already exists for this category
     const existingBudget = await Budget.findOne({
       userId,
       category: budgetData.category,
