@@ -5,10 +5,12 @@ import HomeRoute from './routes/home-route';
 import CategoryRoute from './routes/category-route';
 import ExpenseRoute from './routes/expense-route';
 import BudgetRoute from './routes/budget-route';
+import swaggerUi from 'swagger-ui-express';
 import { clerkMiddleware } from '@clerk/express';
 import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
 import { connectToMongoDB } from './lib/db/mongoose';
+import { swaggerSpec } from './lib/utils/swagger';
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(rateLimiter);
 app.use(clerkMiddleware());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 (async () => {
   try {
