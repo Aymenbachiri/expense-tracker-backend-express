@@ -11,6 +11,7 @@ import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
 import { connectToMongoDB } from './lib/db/mongoose';
 import { swaggerSpec } from './lib/utils/swagger';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 
 const app = express();
 
@@ -21,7 +22,18 @@ app.use(helmet());
 app.use(rateLimiter);
 app.use(clerkMiddleware());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const theme = new SwaggerTheme();
+
+const swaggerUiOptions = {
+  explorer: true,
+  customCss: theme.getBuffer(SwaggerThemeNameEnum.DARK),
+};
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, swaggerUiOptions),
+);
 
 (async () => {
   try {
