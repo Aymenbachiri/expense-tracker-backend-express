@@ -1,6 +1,6 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { createExpenseSchema } from '../../lib/schemas/expense-schema';
-import Expense from '../../lib/models/expense-model';
 import { checkCategoryOwnership } from '../../lib/helpers/check-category-ownership';
 import type { Request, Response } from 'express';
 

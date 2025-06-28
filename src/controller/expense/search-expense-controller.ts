@@ -1,6 +1,6 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { searchExpensesSchema } from '../../lib/schemas/expense-schema';
-import Expense from '../../lib/models/expense-model';
 import type { Request, Response } from 'express';
 
 export async function searchExpenses(

@@ -2,6 +2,7 @@ import { getAuth } from '@clerk/express';
 import { checkCategoryOwnership } from '../../lib/helpers/check-category-ownership';
 import { checkExpenseOwnership } from '../../lib/helpers/check-expense-ownership';
 import { updateExpenseSchema } from '../../lib/schemas/expense-schema';
+import { Types } from 'mongoose';
 import Expense from '../../lib/models/expense-model';
 import type { Request, Response } from 'express';
 
@@ -32,6 +33,20 @@ export async function updateExpense(
     }
 
     const { id } = parse.data.params;
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Expense ID is required',
+      });
+      return;
+    }
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid expense ID',
+      });
+      return;
+    }
     const updateData = parse.data.body;
 
     const existingExpense = await checkExpenseOwnership(id, userId);
@@ -61,6 +76,13 @@ export async function updateExpense(
       new: true,
       runValidators: true,
     }).populate('category', 'name');
+    if (!expense) {
+      res.status(404).json({
+        success: false,
+        message: 'Expense not found',
+      });
+      return;
+    }
 
     res.status(200).json({
       success: true,

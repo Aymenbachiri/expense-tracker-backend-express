@@ -18,6 +18,13 @@ export async function getCategories(
     const categories = await Category.find({ userId }).sort({
       createdAt: -1,
     });
+    if (!categories) {
+      res.status(404).json({
+        success: false,
+        message: 'No categories found',
+      });
+      return;
+    }
 
     res.status(200).json({
       success: true,

@@ -1,6 +1,7 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { deleteExpenseSchema } from '../../lib/schemas/expense-schema';
-import Expense from '../../lib/models/expense-model';
+import { Types } from 'mongoose';
 import type { Request, Response } from 'express';
 
 export async function deleteExpense(
@@ -31,6 +32,13 @@ export async function deleteExpense(
       res.status(400).json({
         success: false,
         message: 'Expense ID is required',
+      });
+      return;
+    }
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid expense ID',
       });
       return;
     }

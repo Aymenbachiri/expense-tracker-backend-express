@@ -1,6 +1,7 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { getExpenseSchema } from '../../lib/schemas/expense-schema';
-import Expense from '../../lib/models/expense-model';
+import { Types } from 'mongoose';
 import type { Request, Response } from 'express';
 
 export async function getExpense(req: Request, res: Response): Promise<void> {
@@ -24,6 +25,20 @@ export async function getExpense(req: Request, res: Response): Promise<void> {
     }
 
     const { id } = parse.data.params;
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: 'Expense ID is required',
+      });
+      return;
+    }
+    if (!Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid expense ID',
+      });
+      return;
+    }
 
     const expense = await Expense.findOne({ _id: id, userId })
       .populate('category', 'name')

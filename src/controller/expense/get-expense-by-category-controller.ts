@@ -1,7 +1,8 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { checkCategoryOwnership } from '../../lib/helpers/check-category-ownership';
 import { getExpensesByCategorySchema } from '../../lib/schemas/expense-schema';
-import Expense from '../../lib/models/expense-model';
+import { Types } from 'mongoose';
 import type { Request, Response } from 'express';
 
 export async function getExpensesByCategory(
@@ -35,6 +36,13 @@ export async function getExpensesByCategory(
       });
       return;
     }
+    if (!Types.ObjectId.isValid(categoryId)) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid category ID',
+      });
+      return;
+    }
 
     const category = await checkCategoryOwnership(categoryId, userId);
     if (!category) {
@@ -49,6 +57,13 @@ export async function getExpensesByCategory(
       .populate('category', 'name')
       .sort({ date: -1 })
       .lean();
+    if (!expenses) {
+      res.status(404).json({
+        success: false,
+        message: 'No expenses found',
+      });
+      return;
+    }
 
     const totalAmount = expenses.reduce(
       (sum, expense) => sum + expense.amount,
