@@ -1020,6 +1020,135 @@ const swaggerDefinition: OpenAPIV3.Document = {
         },
       },
     },
+    '/expenses': {
+      get: {
+        summary: 'Get expenses with filters and pagination',
+        description:
+          'Retrieves a paginated list of expenses for the authenticated user. Supports filtering by date range, category, amount, and sorting.',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'startDate',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date' },
+            description: 'Start date filter (YYYY-MM-DD)',
+          },
+          {
+            name: 'endDate',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date' },
+            description: 'End date filter (YYYY-MM-DD)',
+          },
+          {
+            name: 'category',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Category ID filter',
+          },
+          {
+            name: 'minAmount',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Minimum amount filter',
+          },
+          {
+            name: 'maxAmount',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Maximum amount filter',
+          },
+          {
+            name: 'page',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', default: 1 },
+            description: 'Page number',
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', default: 10 },
+            description: 'Items per page',
+          },
+          {
+            name: 'sortBy',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              enum: ['date', 'amount', 'category', 'description'],
+              default: 'date',
+            },
+            description: 'Sort by field',
+          },
+          {
+            name: 'sortOrder',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['asc', 'desc'], default: 'desc' },
+            description: 'Sort order (asc or desc)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Expenses retrieved successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiResponse' },
+                example: {
+                  success: true,
+                  data: {
+                    expenses: [
+                      {
+                        _id: '60d5ec49fa2b5c001c8d4f1a',
+                        amount: 49.99,
+                        description: 'Grocery shopping',
+                        notes: 'Bought fruits and veggies',
+                        category: '60d5ea8dfa2b5c001c8d4f19',
+                        date: '2025-06-29T12:00:00.000Z',
+                        userId: 'user_2abcdefghijklmnop',
+                        createdAt: '2025-06-29T12:05:00.000Z',
+                        updatedAt: '2025-06-29T12:05:00.000Z',
+                      },
+                      {
+                        _id: '60d5ec61fa2b5c001c8d4f1b',
+                        amount: 25.5,
+                        description: 'Coffee shop',
+                        notes: null,
+                        category: '60d5ea8dfa2b5c001c8d4f19',
+                        date: '2025-06-28T08:30:00.000Z',
+                        userId: 'user_2abcdefghijklmnop',
+                        createdAt: '2025-06-28T08:31:00.000Z',
+                        updatedAt: '2025-06-28T08:31:00.000Z',
+                      },
+                    ],
+                    pagination: {
+                      currentPage: 1,
+                      totalPages: 3,
+                      totalItems: 25,
+                      itemsPerPage: 10,
+                      hasNextPage: true,
+                      hasPrevPage: false,
+                    },
+                  },
+                  message: 'Expenses retrieved successfully',
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/ValidationError' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+    },
   },
 };
 
