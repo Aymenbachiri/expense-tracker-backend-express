@@ -432,6 +432,131 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      MonthlyBreakdown: {
+        type: 'object',
+        description: 'A detailed breakdown of expenses for a given month.',
+        properties: {
+          month: {
+            type: 'number',
+            description: 'The month number (1-12).',
+            example: 6,
+          },
+          year: {
+            type: 'number',
+            description: 'The year.',
+            example: 2025,
+          },
+          period: {
+            type: 'string',
+            description: 'The formatted period string (YYYY-MM).',
+            example: '2025-06',
+          },
+          summary: {
+            type: 'object',
+            description: 'A summary of all expenses within the month.',
+            properties: {
+              total: { type: 'number', example: 5432.1 },
+              count: { type: 'number', example: 45 },
+              avgAmount: { type: 'number', example: 120.71 },
+              maxAmount: { type: 'number', example: 800 },
+              minAmount: { type: 'number', example: 5.5 },
+            },
+          },
+          dailyBreakdown: {
+            type: 'array',
+            description:
+              'An array showing total expenses for each day of the month.',
+            items: {
+              type: 'object',
+              properties: {
+                day: {
+                  type: 'number',
+                  description: 'The day of the month.',
+                  example: 15,
+                },
+                total: {
+                  type: 'number',
+                  description: 'Total expenses for that day.',
+                  example: 350,
+                },
+                count: {
+                  type: 'number',
+                  description: 'Number of transactions for that day.',
+                  example: 3,
+                },
+                date: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'The full date object for the day.',
+                  example: '2025-06-15T00:00:00.000Z',
+                },
+              },
+            },
+          },
+          weeklyBreakdown: {
+            type: 'array',
+            description:
+              'An array showing total expenses for each week of the month.',
+            items: {
+              type: 'object',
+              properties: {
+                _id: {
+                  type: 'number',
+                  description: 'The week number of the year.',
+                  example: 24,
+                },
+                total: {
+                  type: 'number',
+                  description: 'Total expenses for that week.',
+                  example: 1200,
+                },
+                count: {
+                  type: 'number',
+                  description: 'Number of transactions for that week.',
+                  example: 10,
+                },
+                startOfWeek: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'The start date of that week.',
+                },
+                endOfWeek: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'The end date of that week.',
+                },
+              },
+            },
+          },
+          categoryBreakdown: {
+            type: 'array',
+            description: 'A breakdown of expenses by category for the month.',
+            items: {
+              type: 'object',
+              properties: {
+                _id: {
+                  type: 'string',
+                  description: 'Category ID.',
+                  example: '507f1f77bcf86cd799439011',
+                },
+                total: { type: 'number', example: 1500 },
+                count: { type: 'number', example: 12 },
+                avgAmount: { type: 'number', example: 125 },
+                name: {
+                  type: 'string',
+                  description: 'Name of the category.',
+                  example: 'Rent',
+                },
+                color: {
+                  type: 'string',
+                  description: 'Color of the category.',
+                  example: '#4A90E2',
+                },
+              },
+            },
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -2437,6 +2562,88 @@ const swaggerDefinition: OpenAPIV3.Document = {
                           path: ['query', 'startDate'],
                         },
                       ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
+    '/analytics/monthly': {
+      get: {
+        summary: 'Get a monthly breakdown of expenses',
+        description:
+          'Retrieves a detailed breakdown of expenses for a specific month and year, including daily, weekly, and category-based aggregations.',
+        tags: ['Analytics'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'year',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              description: "The year for the breakdown (e.g., '2025').",
+              example: '2025',
+            },
+          },
+          {
+            name: 'month',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              description:
+                "The month for the breakdown (1-12, e.g., '6' for June).",
+              example: '6',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Monthly breakdown retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/MonthlyBreakdown' },
+                    message: {
+                      type: 'string',
+                      example: 'Monthly breakdown retrieved successfully',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - Missing or invalid year/month.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                examples: {
+                  missingYear: {
+                    summary: 'Missing Year',
+                    value: {
+                      success: false,
+                      message: 'Year is required',
+                    },
+                  },
+                  missingMonth: {
+                    summary: 'Missing Month',
+                    value: {
+                      success: false,
+                      message: 'Month is required',
                     },
                   },
                 },
