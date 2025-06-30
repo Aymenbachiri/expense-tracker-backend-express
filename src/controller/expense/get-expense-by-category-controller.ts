@@ -28,7 +28,7 @@ export async function getExpensesByCategory(
       return;
     }
 
-    const { categoryId } = parse.data.params;
+    const { categoryId } = parse.data;
     if (!categoryId) {
       res.status(400).json({
         success: false,

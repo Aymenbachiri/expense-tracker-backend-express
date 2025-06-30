@@ -24,7 +24,7 @@ export async function getExpense(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { id } = parse.data.params;
+    const { id } = parse.data;
     if (!id) {
       res.status(400).json({
         success: false,

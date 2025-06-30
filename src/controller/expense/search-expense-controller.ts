@@ -26,7 +26,7 @@ export async function searchExpenses(
       return;
     }
 
-    const { q, page, limit } = parse.data.query;
+    const { q, page, limit } = parse.data;
     if (!q) {
       res.status(400).json({
         success: false,

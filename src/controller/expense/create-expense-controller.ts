@@ -27,7 +27,7 @@ export async function createExpense(
       return;
     }
 
-    const expenseData = parse.data.body;
+    const expenseData = parse.data;
 
     const category = await checkCategoryOwnership(expenseData.category, userId);
     if (!category) {

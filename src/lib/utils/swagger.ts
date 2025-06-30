@@ -60,6 +60,7 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+
       CreateCategoryRequest: {
         type: 'object',
         required: ['name'],
@@ -88,6 +89,29 @@ const swaggerDefinition: OpenAPIV3.Document = {
             description: 'Category ID',
             example: '507f1f77bcf86cd799439011',
           },
+        },
+      },
+      Expense: {
+        type: 'object',
+        required: ['amount', 'description', 'category', 'date'],
+        properties: {
+          _id: { type: 'string', example: '507f1f77bcf86cd799439011' },
+          amount: { type: 'number', example: 49.99 },
+          description: { type: 'string', example: 'Grocery shopping' },
+          notes: { type: 'string', example: 'Bought fruits and veggies' },
+          category: {
+            type: 'string',
+            description: 'Category ID',
+            example: '507f1f77bcf86cd799439011',
+          },
+          date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-06-30T12:00:00.000Z',
+          },
+          userId: { type: 'string', example: 'user_2abcdefghijklmnop' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
       ApiResponse: {
@@ -732,6 +756,61 @@ const swaggerDefinition: OpenAPIV3.Document = {
               },
             },
           },
+        },
+      },
+    },
+    '/expenses/search': {
+      get: {
+        summary: 'Search expenses by query',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'q',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', default: 1 },
+          },
+          {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', default: 10 },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Search completed successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        expenses: {
+                          type: 'array',
+                          items: { $ref: '#/components/schemas/Expense' },
+                        },
+                        pagination: { type: 'object' },
+                        searchQuery: { type: 'string' },
+                      },
+                    },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/ValidationError' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
         },
       },
     },

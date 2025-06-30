@@ -33,7 +33,7 @@ export async function getExpenses(req: Request, res: Response): Promise<void> {
       limit,
       sortBy,
       sortOrder,
-    } = parse.data.query;
+    } = parse.data;
 
     const filter: any = { userId };
 

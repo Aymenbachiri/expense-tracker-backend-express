@@ -32,7 +32,7 @@ export async function updateExpense(
       return;
     }
 
-    const { id } = parse.data.params;
+    const { id } = parse.data;
     if (!id) {
       res.status(400).json({
         success: false,
@@ -47,7 +47,7 @@ export async function updateExpense(
       });
       return;
     }
-    const updateData = parse.data.body;
+    const updateData = parse.data;
 
     const existingExpense = await checkExpenseOwnership(id, userId);
     if (!existingExpense) {
