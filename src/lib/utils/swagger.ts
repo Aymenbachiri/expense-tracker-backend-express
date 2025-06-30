@@ -619,6 +619,121 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      delete: {
+        summary: 'Delete a category by its ID',
+        description:
+          'Permanently deletes a category belonging to the authenticated user. This action cannot be undone.',
+        tags: ['Categories'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the category to delete',
+              example: '507f1f77bcf86cd799439011',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Category deleted successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Category deleted successfully',
+                    },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'string',
+                          description: 'ID of the deleted category',
+                          example: '507f1f77bcf86cd799439011',
+                        },
+                      },
+                    },
+                  },
+                },
+                example: {
+                  success: true,
+                  message: 'Category deleted successfully',
+                  data: {
+                    id: '507f1f77bcf86cd799439011',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad request - Invalid or missing category ID',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                examples: {
+                  missingId: {
+                    summary: 'Missing category ID',
+                    value: {
+                      success: false,
+                      message: 'Category ID is required',
+                    },
+                  },
+                  invalidId: {
+                    summary: 'Invalid category ID format',
+                    value: {
+                      success: false,
+                      message: 'Invalid category ID',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'Category not found',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Category not found',
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Failed to delete category',
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
 };
