@@ -24,7 +24,6 @@ const swaggerDefinition: OpenAPIV3.Document = {
           'Clerk authentication token. Get this from your Clerk session.',
       },
     },
-
     schemas: {
       Category: {
         type: 'object',
@@ -60,7 +59,6 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
-
       CreateCategoryRequest: {
         type: 'object',
         required: ['name'],
@@ -140,6 +138,102 @@ const swaggerDefinition: OpenAPIV3.Document = {
             type: 'string',
             format: 'date-time',
             example: '2025-07-01T10:00:00.000Z',
+          },
+        },
+      },
+      Budget: {
+        type: 'object',
+        required: [
+          'name',
+          'amount',
+          'category',
+          'period',
+          'startDate',
+          'endDate',
+          'userId',
+        ],
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'MongoDB ObjectId',
+            example: '507f1f77bcf86cd799439011',
+          },
+          name: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 100,
+            description: 'Budget name',
+            example: 'Monthly Groceries',
+          },
+          amount: {
+            type: 'number',
+            minimum: 0.01,
+            description: 'Budget amount',
+            example: 500.0,
+          },
+          category: {
+            oneOf: [
+              {
+                type: 'string',
+                description: 'Category ID (when not populated)',
+                example: '507f1f77bcf86cd799439011',
+              },
+              {
+                type: 'object',
+                description: 'Populated category object',
+                properties: {
+                  _id: {
+                    type: 'string',
+                    example: '507f1f77bcf86cd799439011',
+                  },
+                  name: {
+                    type: 'string',
+                    example: 'Food & Dining',
+                  },
+                },
+              },
+            ],
+          },
+          period: {
+            type: 'string',
+            enum: ['monthly', 'weekly', 'yearly'],
+            description: 'Budget period',
+            example: 'monthly',
+          },
+          startDate: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Budget start date',
+            example: '2025-01-01T00:00:00.000Z',
+          },
+          endDate: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Budget end date',
+            example: '2025-01-31T23:59:59.000Z',
+          },
+          userId: {
+            type: 'string',
+            description: 'Clerk user ID',
+            example: 'user_2abcdefghijklmnop',
+          },
+          isActive: {
+            type: 'boolean',
+            description: 'Whether the budget is active',
+            example: true,
+            default: true,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Creation timestamp',
+            example: '2025-01-01T10:30:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last update timestamp',
+            example: '2025-01-01T10:30:00.000Z',
           },
         },
       },
@@ -1419,6 +1513,98 @@ const swaggerDefinition: OpenAPIV3.Document = {
             },
           },
           '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+    },
+    '/budgets': {
+      get: {
+        summary: 'Get all budgets for authenticated user',
+        description:
+          'Retrieves all budgets belonging to the authenticated user with populated category names, sorted by creation date (newest first)',
+        tags: ['Budgets'],
+        security: [{ ClerkAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Budgets retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    data: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Budget',
+                      },
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Budgets retrieved successfully',
+                    },
+                  },
+                },
+                example: {
+                  success: true,
+                  data: [
+                    {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Monthly Groceries',
+                      amount: 500.0,
+                      category: {
+                        _id: '507f1f77bcf86cd799439012',
+                        name: 'Food & Dining',
+                      },
+                      period: 'monthly',
+                      startDate: '2025-01-01T00:00:00.000Z',
+                      endDate: '2025-01-31T23:59:59.000Z',
+                      userId: 'user_2abcdefghijklmnop',
+                      isActive: true,
+                      createdAt: '2025-01-01T10:30:00.000Z',
+                      updatedAt: '2025-01-01T10:30:00.000Z',
+                    },
+                    {
+                      _id: '507f1f77bcf86cd799439013',
+                      name: 'Weekly Entertainment',
+                      amount: 100.0,
+                      category: {
+                        _id: '507f1f77bcf86cd799439014',
+                        name: 'Entertainment',
+                      },
+                      period: 'weekly',
+                      startDate: '2025-01-01T00:00:00.000Z',
+                      endDate: '2025-01-07T23:59:59.000Z',
+                      userId: 'user_2abcdefghijklmnop',
+                      isActive: true,
+                      createdAt: '2024-12-30T15:20:00.000Z',
+                      updatedAt: '2024-12-30T15:20:00.000Z',
+                    },
+                  ],
+                  message: 'Budgets retrieved successfully',
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Failed to get budgets',
+                },
+              },
+            },
+          },
         },
       },
     },
