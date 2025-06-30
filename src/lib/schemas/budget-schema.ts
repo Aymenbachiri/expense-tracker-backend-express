@@ -41,36 +41,29 @@ export const updateBudgetSchema = z
       .min(1, 'Budget name cannot be empty')
       .max(100, 'Budget name cannot be more than 100 characters')
       .optional(),
-
     amount: z
       .number()
       .positive('Budget amount must be greater than 0')
       .finite('Budget amount must be a valid number')
       .optional(),
-
     category: z
       .string()
       .refine((val) => Types.ObjectId.isValid(val), {
         message: 'Invalid category ID format',
       })
       .optional(),
-
     period: z.enum(['monthly', 'weekly', 'yearly']).optional(),
-
     startDate: z
       .string()
       .datetime('Invalid start date format')
       .transform((val) => new Date(val))
       .optional(),
-
     endDate: z
       .string()
       .datetime('Invalid end date format')
       .transform((val) => new Date(val))
       .optional(),
-
     isActive: z.boolean().optional(),
-
     id: z.string().refine((val) => Types.ObjectId.isValid(val), {
       message: 'Invalid budget ID format',
     }),

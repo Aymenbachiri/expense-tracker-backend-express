@@ -287,6 +287,56 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      UpdateBudgetRequest: {
+        type: 'object',
+        description:
+          'Fields for updating an existing budget. All fields are optional.',
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 100,
+            description: 'Updated budget name',
+            example: 'Monthly Dining Out',
+          },
+          amount: {
+            type: 'number',
+            minimum: 0.01,
+            description: 'Updated budget amount (must be positive)',
+            example: 250.0,
+          },
+          category: {
+            type: 'string',
+            description:
+              'Updated category ID (must be a valid MongoDB ObjectId)',
+            example: '507f1f77bcf86cd799439011',
+          },
+          period: {
+            type: 'string',
+            enum: ['monthly', 'weekly', 'yearly'],
+            description: 'Updated budget period',
+            example: 'monthly',
+          },
+          startDate: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Updated budget start date (ISO 8601 format)',
+            example: '2025-08-01T00:00:00.000Z',
+          },
+          endDate: {
+            type: 'string',
+            format: 'date-time',
+            description:
+              'Updated budget end date (ISO 8601 format, must be after start date)',
+            example: '2025-08-31T23:59:59.000Z',
+          },
+          isActive: {
+            type: 'boolean',
+            description: 'Update whether the budget is active',
+            example: false,
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -1951,6 +2001,151 @@ const swaggerDefinition: OpenAPIV3.Document = {
                 example: {
                   success: false,
                   message: 'Budget not found',
+                },
+              },
+            },
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+      put: {
+        summary: 'Update a budget by its ID',
+        description:
+          'Updates an existing budget belonging to the authenticated user. Any field provided in the request body will be updated. Fields not provided will remain unchanged.',
+        tags: ['Budgets'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The MongoDB ObjectId of the budget to update.',
+            schema: {
+              type: 'string',
+              example: '60d0fe4f5311236168a109ca',
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          description: 'Object containing the fields to update for the budget.',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UpdateBudgetRequest',
+              },
+              example: {
+                amount: 550,
+                isActive: false,
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Budget updated successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                    data: { $ref: '#/components/schemas/Budget' },
+                  },
+                },
+                example: {
+                  success: true,
+                  message: 'Budget updated successfully',
+                  data: {
+                    _id: '60d0fe4f5311236168a109ca',
+                    name: 'Monthly Groceries',
+                    amount: 550,
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    period: 'monthly',
+                    startDate: '2025-07-01T00:00:00.000Z',
+                    endDate: '2025-07-31T23:59:59.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    isActive: false,
+                    createdAt: '2025-06-28T10:00:00.000Z',
+                    updatedAt: '2025-06-30T11:30:00.000Z',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description:
+              'Bad Request - The request body or path parameter is invalid.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ValidationError',
+                },
+                examples: {
+                  validationError: {
+                    summary: 'Zod Validation Error',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'too_small',
+                          minimum: 0,
+                          type: 'number',
+                          inclusive: false,
+                          message: 'Budget amount must be greater than 0',
+                          path: ['amount'],
+                        },
+                        {
+                          code: 'custom',
+                          message: 'End date must be after start date',
+                          path: ['endDate'],
+                        },
+                      ],
+                    },
+                  },
+                  invalidId: {
+                    summary: 'Invalid ID in Path',
+                    value: {
+                      success: false,
+                      message: 'Invalid budget ID',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description:
+              'Not Found - The budget or a specified category was not found.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                examples: {
+                  budgetNotFound: {
+                    summary: 'Budget Not Found',
+                    value: {
+                      success: false,
+                      message: 'Budget not found',
+                    },
+                  },
+                  categoryNotFound: {
+                    summary: 'Category Not Found',
+                    value: {
+                      success: false,
+                      message: 'Category not found or does not belong to user',
+                    },
+                  },
                 },
               },
             },
