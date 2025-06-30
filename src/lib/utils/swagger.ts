@@ -1,5 +1,5 @@
 import swaggerJsdoc from 'swagger-jsdoc';
-import { OpenAPIV3 } from 'openapi-types';
+import type { OpenAPIV3 } from 'openapi-types';
 
 const swaggerDefinition: OpenAPIV3.Document = {
   openapi: '3.0.0',
@@ -366,6 +366,65 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
           '409': {
             $ref: '#/components/responses/ConflictError',
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
+    '/category/{id}': {
+      get: {
+        summary: 'Get a single category by its ID',
+        description:
+          'Retrieves a single category belonging to the authenticated user by MongoDB ObjectId.',
+        tags: ['Categories'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the category',
+              example: '507f1f77bcf86cd799439011',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Category retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/Category' },
+                  },
+                },
+                example: {
+                  success: true,
+                  data: {
+                    _id: '507f1f77bcf86cd799439011',
+                    name: 'Food & Dining',
+                    userId: 'user_2abcdefghijklmnop',
+                    createdAt: '2024-01-15T10:30:00.000Z',
+                    updatedAt: '2024-01-15T10:30:00.000Z',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            $ref: '#/components/responses/ValidationError',
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            $ref: '#/components/responses/NotFoundError',
           },
           '500': {
             $ref: '#/components/responses/InternalServerError',
