@@ -28,7 +28,7 @@ export async function updateBudget(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { id } = parse.data.params;
+    const { id } = parse.data;
     if (!id) {
       res.status(400).json({
         success: false,
@@ -43,7 +43,7 @@ export async function updateBudget(req: Request, res: Response): Promise<void> {
       });
       return;
     }
-    const updateData = parse.data.body;
+    const updateData = parse.data;
 
     const existingBudget = await Budget.findOne({ _id: id, userId });
     if (!existingBudget) {

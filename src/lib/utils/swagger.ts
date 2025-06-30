@@ -237,6 +237,56 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      CreateBudgetRequest: {
+        type: 'object',
+        required: ['name', 'amount', 'category', 'startDate', 'endDate'],
+        properties: {
+          name: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 100,
+            description: 'Budget name',
+            example: 'Monthly Groceries Budget',
+          },
+          amount: {
+            type: 'number',
+            minimum: 0.01,
+            description: 'Budget amount (must be positive)',
+            example: 500.0,
+          },
+          category: {
+            type: 'string',
+            description: 'Category ID (must be a valid MongoDB ObjectId)',
+            example: '507f1f77bcf86cd799439011',
+          },
+          period: {
+            type: 'string',
+            enum: ['monthly', 'weekly', 'yearly'],
+            description: 'Budget period',
+            example: 'monthly',
+            default: 'monthly',
+          },
+          startDate: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Budget start date (ISO 8601 format)',
+            example: '2025-01-01T00:00:00.000Z',
+          },
+          endDate: {
+            type: 'string',
+            format: 'date-time',
+            description:
+              'Budget end date (ISO 8601 format, must be after start date)',
+            example: '2025-01-31T23:59:59.000Z',
+          },
+          isActive: {
+            type: 'boolean',
+            description: 'Whether the budget is active',
+            example: true,
+            default: true,
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -1601,6 +1651,196 @@ const swaggerDefinition: OpenAPIV3.Document = {
                 example: {
                   success: false,
                   message: 'Failed to get budgets',
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        summary: 'Create a new budget',
+        description:
+          'Creates a new budget for the authenticated user. Validates that the category belongs to the user and no overlapping active budget exists for the same category and period.',
+        tags: ['Budgets'],
+        security: [{ ClerkAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/CreateBudgetRequest',
+              },
+              example: {
+                name: 'Monthly Groceries Budget',
+                amount: 500.0,
+                category: '507f1f77bcf86cd799439011',
+                period: 'monthly',
+                startDate: '2025-01-01T00:00:00.000Z',
+                endDate: '2025-01-31T23:59:59.000Z',
+                isActive: true,
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Budget created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    data: {
+                      $ref: '#/components/schemas/Budget',
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Budget created successfully',
+                    },
+                  },
+                },
+                example: {
+                  success: true,
+                  data: {
+                    _id: '507f1f77bcf86cd799439015',
+                    name: 'Monthly Groceries Budget',
+                    amount: 500.0,
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    period: 'monthly',
+                    startDate: '2025-01-01T00:00:00.000Z',
+                    endDate: '2025-01-31T23:59:59.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    isActive: true,
+                    createdAt: '2025-01-01T10:30:00.000Z',
+                    updatedAt: '2025-01-01T10:30:00.000Z',
+                  },
+                  message: 'Budget created successfully',
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Validation error',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: false,
+                    },
+                    message: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          code: { type: 'string' },
+                          message: { type: 'string' },
+                          path: { type: 'array', items: { type: 'string' } },
+                        },
+                      },
+                    },
+                  },
+                },
+                examples: {
+                  validationError: {
+                    summary: 'Validation errors from Zod schema',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'too_small',
+                          minimum: 1,
+                          type: 'string',
+                          inclusive: true,
+                          exact: false,
+                          message: 'Budget name cannot be empty',
+                          path: ['name'],
+                        },
+                        {
+                          code: 'too_small',
+                          minimum: 0,
+                          type: 'number',
+                          inclusive: false,
+                          exact: false,
+                          message: 'Budget amount must be greater than 0',
+                          path: ['amount'],
+                        },
+                        {
+                          code: 'custom',
+                          message: 'End date must be after start date',
+                          path: ['endDate'],
+                        },
+                      ],
+                    },
+                  },
+                  invalidCategoryId: {
+                    summary: 'Invalid category ID format',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'custom',
+                          message: 'Invalid category ID format',
+                          path: ['category'],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'Category not found or does not belong to user',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Category not found or does not belong to user',
+                },
+              },
+            },
+          },
+          '409': {
+            description: 'Budget conflict - overlapping active budget exists',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message:
+                    'An active budget already exists for this category in the specified period',
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Failed to create budget',
                 },
               },
             },

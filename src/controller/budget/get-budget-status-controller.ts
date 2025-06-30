@@ -28,7 +28,7 @@ export async function getBudgetStatus(
       return;
     }
 
-    const { id } = parse.data.params;
+    const { id } = parse.data;
     if (!id) {
       res.status(400).json({
         success: false,

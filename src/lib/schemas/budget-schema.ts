@@ -33,78 +33,75 @@ const budgetBodySchema = z
 
 export const createBudgetSchema = z.object({ body: budgetBodySchema });
 
-export const updateBudgetSchema = z.object({
-  body: z
-    .object({
-      name: z
-        .string()
-        .trim()
-        .min(1, 'Budget name cannot be empty')
-        .max(100, 'Budget name cannot be more than 100 characters')
-        .optional(),
-      amount: z
-        .number()
-        .positive('Budget amount must be greater than 0')
-        .finite('Budget amount must be a valid number')
-        .optional(),
-      category: z
-        .string()
-        .refine((val) => Types.ObjectId.isValid(val), {
-          message: 'Invalid category ID format',
-        })
-        .optional(),
-      period: z.enum(['monthly', 'weekly', 'yearly']).optional(),
-      startDate: z
-        .string()
-        .datetime('Invalid start date format')
-        .transform((val) => new Date(val))
-        .optional(),
-      endDate: z
-        .string()
-        .datetime('Invalid end date format')
-        .transform((val) => new Date(val))
-        .optional(),
-      isActive: z.boolean().optional(),
-    })
-    .refine(
-      (data) => {
-        if (data.startDate && data.endDate) {
-          return data.endDate > data.startDate;
-        }
-        return true;
-      },
-      {
-        message: 'End date must be after start date',
-        path: ['endDate'],
-      },
-    ),
-  params: z.object({
+export const updateBudgetSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, 'Budget name cannot be empty')
+      .max(100, 'Budget name cannot be more than 100 characters')
+      .optional(),
+
+    amount: z
+      .number()
+      .positive('Budget amount must be greater than 0')
+      .finite('Budget amount must be a valid number')
+      .optional(),
+
+    category: z
+      .string()
+      .refine((val) => Types.ObjectId.isValid(val), {
+        message: 'Invalid category ID format',
+      })
+      .optional(),
+
+    period: z.enum(['monthly', 'weekly', 'yearly']).optional(),
+
+    startDate: z
+      .string()
+      .datetime('Invalid start date format')
+      .transform((val) => new Date(val))
+      .optional(),
+
+    endDate: z
+      .string()
+      .datetime('Invalid end date format')
+      .transform((val) => new Date(val))
+      .optional(),
+
+    isActive: z.boolean().optional(),
+
     id: z.string().refine((val) => Types.ObjectId.isValid(val), {
       message: 'Invalid budget ID format',
     }),
-  }),
-});
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return data.endDate > data.startDate;
+      }
+      return true;
+    },
+    {
+      message: 'End date must be after start date',
+      path: ['endDate'],
+    },
+  );
 
 export const getBudgetByIdSchema = z.object({
-  params: z.object({
-    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
-      message: 'Invalid budget ID format',
-    }),
+  id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: 'Invalid budget ID format',
   }),
 });
 
 export const deleteBudgetSchema = z.object({
-  params: z.object({
-    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
-      message: 'Invalid budget ID format',
-    }),
+  id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: 'Invalid budget ID format',
   }),
 });
 
 export const getBudgetStatusSchema = z.object({
-  params: z.object({
-    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
-      message: 'Invalid budget ID format',
-    }),
+  id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: 'Invalid budget ID format',
   }),
 });
