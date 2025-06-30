@@ -16,7 +16,14 @@ import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'https://expense-tracker-backend-express.vercel.app/',
+    ],
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
