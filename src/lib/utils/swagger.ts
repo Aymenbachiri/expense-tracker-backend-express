@@ -1848,6 +1848,119 @@ const swaggerDefinition: OpenAPIV3.Document = {
         },
       },
     },
+    '/budget/{id}': {
+      get: {
+        summary: 'Get a single budget by its ID',
+        description:
+          "Retrieves a single budget belonging to the authenticated user by its MongoDB ObjectId. The budget's category is populated with its name.",
+        tags: ['Budgets'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The MongoDB ObjectId of the budget to retrieve.',
+            schema: {
+              type: 'string',
+              example: '60d0fe4f5311236168a109ca',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Budget retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                    data: { $ref: '#/components/schemas/Budget' },
+                  },
+                },
+                example: {
+                  success: true,
+                  message: 'Budget retrieved successfully',
+                  data: {
+                    _id: '60d0fe4f5311236168a109ca',
+                    name: 'Monthly Groceries',
+                    amount: 500,
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    period: 'monthly',
+                    startDate: '2025-07-01T00:00:00.000Z',
+                    endDate: '2025-07-31T23:59:59.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    isActive: true,
+                    createdAt: '2025-06-28T10:00:00.000Z',
+                    updatedAt: '2025-06-28T10:00:00.000Z',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - The provided budget ID is invalid.',
+            content: {
+              'application/json': {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/schemas/ErrorResponse' },
+                    { $ref: '#/components/schemas/ValidationError' },
+                  ],
+                },
+                examples: {
+                  zodValidationError: {
+                    summary: 'Validation Error from Zod',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'custom',
+                          message: 'Invalid budget ID format',
+                          path: ['id'],
+                        },
+                      ],
+                    },
+                  },
+                  explicitInvalidId: {
+                    summary: 'Invalid ID from Controller Check',
+                    value: {
+                      success: false,
+                      message: 'Invalid budget ID',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'Budget not found for the given ID.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Budget not found',
+                },
+              },
+            },
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
   },
 };
 
