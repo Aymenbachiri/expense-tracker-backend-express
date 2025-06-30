@@ -24,6 +24,7 @@ const swaggerDefinition: OpenAPIV3.Document = {
           'Clerk authentication token. Get this from your Clerk session.',
       },
     },
+
     schemas: {
       Category: {
         type: 'object',
@@ -73,12 +74,19 @@ const swaggerDefinition: OpenAPIV3.Document = {
       },
       UpdateCategoryRequest: {
         type: 'object',
+        required: ['name', 'id'],
         properties: {
           name: {
             type: 'string',
+            minLength: 3,
             maxLength: 50,
             description: 'Updated category name',
             example: 'Restaurants & Dining',
+          },
+          id: {
+            type: 'string',
+            description: 'Category ID',
+            example: '507f1f77bcf86cd799439011',
           },
         },
       },
@@ -428,6 +436,186 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
           '500': {
             $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+      put: {
+        summary: 'Update a category by its ID',
+        description:
+          'Updates an existing category belonging to the authenticated user. Category names must be unique per user.',
+        tags: ['Categories'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the category',
+              example: '507f1f77bcf86cd799439011',
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/UpdateCategoryRequest',
+              },
+              example: {
+                name: 'Restaurants & Dining',
+                id: '507f1f77bcf86cd799439011',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Category updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Category updated successfully',
+                    },
+                    data: {
+                      $ref: '#/components/schemas/Category',
+                    },
+                  },
+                },
+                example: {
+                  success: true,
+                  message: 'Category updated successfully',
+                  data: {
+                    _id: '507f1f77bcf86cd799439011',
+                    name: 'Restaurants & Dining',
+                    userId: 'user_2abcdefghijklmnop',
+                    createdAt: '2024-01-15T10:30:00.000Z',
+                    updatedAt: '2024-01-15T12:45:00.000Z',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad request - Invalid ID or validation error',
+            content: {
+              'application/json': {
+                schema: {
+                  oneOf: [
+                    {
+                      $ref: '#/components/schemas/ErrorResponse',
+                    },
+                    {
+                      $ref: '#/components/schemas/ValidationError',
+                    },
+                  ],
+                },
+                examples: {
+                  validationError: {
+                    summary: 'Validation error',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'too_small',
+                          minimum: 3,
+                          type: 'string',
+                          inclusive: true,
+                          exact: false,
+                          message:
+                            'Category name must be at least 3 characters long',
+                          path: ['name'],
+                        },
+                        {
+                          code: 'invalid_type',
+                          expected: 'string',
+                          received: 'undefined',
+                          message: 'Category ID is required',
+                          path: ['id'],
+                        },
+                      ],
+                    },
+                  },
+                  missingFields: {
+                    summary: 'Missing required fields',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'invalid_type',
+                          expected: 'string',
+                          received: 'undefined',
+                          message: 'Category name is required',
+                          path: ['name'],
+                        },
+                        {
+                          code: 'invalid_type',
+                          expected: 'string',
+                          received: 'undefined',
+                          message: 'Category ID is required',
+                          path: ['id'],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'Category not found',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Category not found',
+                },
+              },
+            },
+          },
+          '409': {
+            description: 'Category name already exists',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Category with this name already exists',
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Failed to update category',
+                },
+              },
+            },
           },
         },
       },

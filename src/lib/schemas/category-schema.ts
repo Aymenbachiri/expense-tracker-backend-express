@@ -10,19 +10,13 @@ export const createCategorySchema = z.object({
 });
 
 export const updateCategorySchema = z.object({
-  body: z.object({
-    name: z
-      .string({
-        required_error: 'Category name is required',
-      })
-      .min(3, 'Category name must be at least 3 characters long')
-      .max(50, 'Category name cannot be more than 50 characters'),
-  }),
-  params: z.object({
-    id: z.string({
-      required_error: 'Category ID is required',
-    }),
-  }),
+  name: z
+    .string({
+      required_error: 'Category name is required',
+    })
+    .min(3, 'Category name must be at least 3 characters long')
+    .max(50, 'Category name cannot be more than 50 characters'),
+  id: z.string({ required_error: 'Category ID is required' }),
 });
 
 export const getCategorySchema = z.object({

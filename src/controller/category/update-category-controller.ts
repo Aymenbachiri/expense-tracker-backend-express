@@ -36,7 +36,7 @@ export async function updateCategory(
       return;
     }
 
-    const updateData = parse.data.body;
+    const updateData = parse.data;
     if (updateData.name) {
       const existingCategory = await Category.findOne({
         userId,
@@ -55,7 +55,7 @@ export async function updateCategory(
 
     const updated = await Category.findOneAndUpdate(
       { _id: id, userId },
-      { name: parse.data.body.name },
+      { name: parse.data.name },
       { new: true },
     );
 
