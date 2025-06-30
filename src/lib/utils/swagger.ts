@@ -814,6 +814,212 @@ const swaggerDefinition: OpenAPIV3.Document = {
         },
       },
     },
+    '/expenses/by-category/{categoryId}': {
+      get: {
+        summary: 'Get expenses by category',
+        description:
+          'Retrieves all expenses for a specific category belonging to the authenticated user, including category name, total amount, and expense count',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'categoryId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the category',
+              example: '507f1f77bcf86cd799439011',
+            },
+            description: 'Category ID to filter expenses by',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Expenses by category retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true,
+                    },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        expenses: {
+                          type: 'array',
+                          items: {
+                            allOf: [
+                              { $ref: '#/components/schemas/Expense' },
+                              {
+                                type: 'object',
+                                properties: {
+                                  category: {
+                                    type: 'object',
+                                    properties: {
+                                      name: {
+                                        type: 'string',
+                                        example: 'Food & Dining',
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                        category: {
+                          type: 'string',
+                          description: 'Category name',
+                          example: 'Food & Dining',
+                        },
+                        totalAmount: {
+                          type: 'number',
+                          description:
+                            'Total amount of all expenses in this category',
+                          example: 245.67,
+                        },
+                        count: {
+                          type: 'number',
+                          description: 'Number of expenses in this category',
+                          example: 5,
+                        },
+                      },
+                    },
+                    message: {
+                      type: 'string',
+                      example: 'Expenses by category retrieved successfully',
+                    },
+                  },
+                },
+                example: {
+                  success: true,
+                  data: {
+                    expenses: [
+                      {
+                        _id: '507f1f77bcf86cd799439012',
+                        amount: 49.99,
+                        description: 'Grocery shopping',
+                        notes: 'Weekly groceries',
+                        category: {
+                          name: 'Food & Dining',
+                        },
+                        date: '2024-06-30T12:00:00.000Z',
+                        userId: 'user_2abcdefghijklmnop',
+                        createdAt: '2024-06-30T12:00:00.000Z',
+                        updatedAt: '2024-06-30T12:00:00.000Z',
+                      },
+                      {
+                        _id: '507f1f77bcf86cd799439013',
+                        amount: 25.5,
+                        description: 'Coffee shop',
+                        category: {
+                          name: 'Food & Dining',
+                        },
+                        date: '2024-06-29T08:30:00.000Z',
+                        userId: 'user_2abcdefghijklmnop',
+                        createdAt: '2024-06-29T08:30:00.000Z',
+                        updatedAt: '2024-06-29T08:30:00.000Z',
+                      },
+                    ],
+                    category: 'Food & Dining',
+                    totalAmount: 75.49,
+                    count: 2,
+                  },
+                  message: 'Expenses by category retrieved successfully',
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad request - Invalid category ID',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                examples: {
+                  invalidId: {
+                    summary: 'Invalid category ID format',
+                    value: {
+                      success: false,
+                      message: 'Invalid category ID',
+                    },
+                  },
+                  missingId: {
+                    summary: 'Missing category ID',
+                    value: {
+                      success: false,
+                      message: 'Category ID is required',
+                    },
+                  },
+                  validationError: {
+                    summary: 'Validation error from Zod schema',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'custom',
+                          message:
+                            'params.categoryId must be a valid ObjectId in get Expenses By Category',
+                          path: ['categoryId'],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'Category not found or no expenses found',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                examples: {
+                  categoryNotFound: {
+                    summary: 'Category not found or does not belong to user',
+                    value: {
+                      success: false,
+                      message: 'Category not found or does not belong to user',
+                    },
+                  },
+                  noExpenses: {
+                    summary: 'No expenses found for this category',
+                    value: {
+                      success: false,
+                      message: 'No expenses found',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Failed to get expenses by category',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
 };
 
