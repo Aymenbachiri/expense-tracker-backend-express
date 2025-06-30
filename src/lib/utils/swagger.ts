@@ -557,6 +557,108 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      YearlyBreakdown: {
+        type: 'object',
+        description: 'A detailed breakdown of expenses for a given year.',
+        properties: {
+          year: {
+            type: 'number',
+            description: 'The year of the report.',
+            example: 2025,
+          },
+          summary: {
+            type: 'object',
+            description: 'An overall summary of all expenses for the year.',
+            properties: {
+              total: { type: 'number', example: 65432.1 },
+              count: { type: 'number', example: 540 },
+              avgAmount: { type: 'number', example: 121.17 },
+              maxAmount: { type: 'number', example: 1200 },
+              minAmount: { type: 'number', example: 2.5 },
+            },
+          },
+          monthlyBreakdown: {
+            type: 'array',
+            description:
+              'A list of expense summaries for each month of the year.',
+            items: {
+              type: 'object',
+              properties: {
+                month: {
+                  type: 'number',
+                  description: 'The month number (1-12).',
+                  example: 6,
+                },
+                monthName: {
+                  type: 'string',
+                  description: 'The full name of the month.',
+                  example: 'June',
+                },
+                total: { type: 'number', example: 5432.1 },
+                count: { type: 'number', example: 45 },
+                avgAmount: { type: 'number', example: 120.71 },
+              },
+            },
+          },
+          quarterlyBreakdown: {
+            type: 'array',
+            description:
+              'A list of expense summaries for each quarter of the year.',
+            items: {
+              type: 'object',
+              properties: {
+                quarter: {
+                  type: 'number',
+                  description: 'The quarter number (1-4).',
+                  example: 2,
+                },
+                quarterName: {
+                  type: 'string',
+                  description: 'The name of the quarter.',
+                  example: 'Q2',
+                },
+                total: { type: 'number', example: 15000 },
+                count: { type: 'number', example: 130 },
+                avgAmount: { type: 'number', example: 115.38 },
+              },
+            },
+          },
+          categoryBreakdown: {
+            type: 'array',
+            description:
+              'A breakdown of total expenses by category for the year.',
+            items: {
+              type: 'object',
+              properties: {
+                _id: { type: 'string', example: '507f1f77bcf86cd799439011' },
+                total: { type: 'number', example: 18000 },
+                count: { type: 'number', example: 150 },
+                avgAmount: { type: 'number', example: 120 },
+                name: { type: 'string', example: 'Utilities' },
+                color: { type: 'string', example: '#F5A623' },
+              },
+            },
+          },
+          topSpendingMonths: {
+            type: 'array',
+            description: 'The top 3 spending months of the year.',
+            items: {
+              type: 'object',
+              properties: {
+                _id: {
+                  type: 'number',
+                  description: 'Month number (1-12).',
+                  example: 12,
+                },
+                total: { type: 'number', example: 8500 },
+                count: { type: 'number', example: 60 },
+                avgAmount: { type: 'number', example: 141.67 },
+                monthName: { type: 'string', example: 'December' },
+              },
+            },
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -2646,6 +2748,65 @@ const swaggerDefinition: OpenAPIV3.Document = {
                       message: 'Month is required',
                     },
                   },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
+    '/analytics/yearly': {
+      get: {
+        summary: 'Get a yearly breakdown of expenses',
+        description:
+          'Retrieves a detailed breakdown of expenses for a specific year, including monthly, quarterly, and category-based aggregations, as well as top spending months.',
+        tags: ['Analytics'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'year',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              description: "The year for the breakdown (e.g., '2025').",
+              example: '2025',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Yearly breakdown retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/YearlyBreakdown' },
+                    message: {
+                      type: 'string',
+                      example: 'Yearly breakdown retrieved successfully',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - Missing or invalid year.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: {
+                  success: false,
+                  message: 'Year is required',
                 },
               },
             },
