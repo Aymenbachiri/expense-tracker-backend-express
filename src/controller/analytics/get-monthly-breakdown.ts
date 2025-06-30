@@ -26,7 +26,7 @@ export async function getMonthlyBreakdown(
       return;
     }
 
-    const { year, month } = parse.data.query;
+    const { year, month } = parse.data;
     if (!year) {
       res.status(400).json({
         success: false,

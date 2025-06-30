@@ -26,7 +26,7 @@ export async function getYearlyBreakdown(
       return;
     }
 
-    const { year } = parse.data.query;
+    const { year } = parse.data;
     if (!year) {
       res.status(400).json({
         success: false,

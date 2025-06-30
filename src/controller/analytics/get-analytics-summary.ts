@@ -27,7 +27,7 @@ export async function getAnalyticsSummary(
       return;
     }
 
-    const { startDate, endDate, categoryId } = parse.data.query;
+    const { startDate, endDate, categoryId } = parse.data;
     if (!startDate) {
       res.status(400).json({
         success: false,

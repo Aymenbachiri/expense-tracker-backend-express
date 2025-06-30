@@ -26,7 +26,7 @@ export async function getSpendingTrends(
       return;
     }
 
-    const { startDate, endDate, period } = parse.data.query;
+    const { startDate, endDate, period } = parse.data;
     if (!startDate) {
       res.status(400).json({
         success: false,

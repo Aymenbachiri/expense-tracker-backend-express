@@ -337,6 +337,101 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      AnalyticsSummary: {
+        type: 'object',
+        properties: {
+          totalExpenses: {
+            type: 'number',
+            description: 'The total sum of all expenses matching the query.',
+            example: 1250.75,
+          },
+          totalCount: {
+            type: 'number',
+            description: 'The total number of expenses matching the query.',
+            example: 15,
+          },
+          avgExpense: {
+            type: 'number',
+            description: 'The average amount of an expense matching the query.',
+            example: 83.38,
+          },
+          expensesByCategory: {
+            type: 'array',
+            description: 'An array of expenses grouped by category.',
+            items: {
+              type: 'object',
+              properties: {
+                _id: {
+                  type: 'string',
+                  description: 'Category ID.',
+                  example: '507f1f77bcf86cd799439011',
+                },
+                total: {
+                  type: 'number',
+                  description: 'Total amount spent in this category.',
+                  example: 500,
+                },
+                count: {
+                  type: 'number',
+                  description: 'Number of expenses in this category.',
+                  example: 5,
+                },
+                name: {
+                  type: 'string',
+                  description: 'Name of the category.',
+                  example: 'Groceries',
+                },
+                color: {
+                  type: 'string',
+                  description: 'Color associated with the category.',
+                  example: '#FF5733',
+                },
+              },
+            },
+          },
+          recentExpenses: {
+            type: 'array',
+            description:
+              'A list of the 5 most recent expenses matching the query.',
+            items: {
+              $ref: '#/components/schemas/Expense',
+            },
+          },
+          budgetComparison: {
+            type: 'array',
+            nullable: true,
+            description:
+              'A comparison of expenses against active budgets for the current month. This is null if a date range is provided.',
+            items: {
+              type: 'object',
+              properties: {
+                budget: { $ref: '#/components/schemas/Budget' },
+                spent: {
+                  type: 'number',
+                  description: 'Total amount spent against this budget.',
+                  example: 250,
+                },
+                remaining: {
+                  type: 'number',
+                  description: 'Remaining amount in this budget.',
+                  example: 250,
+                },
+                percentage: {
+                  type: 'number',
+                  description: 'Percentage of the budget that has been spent.',
+                  example: 50,
+                },
+                status: {
+                  type: 'string',
+                  enum: ['good', 'warning', 'exceeded'],
+                  description: 'The status of the budget based on spending.',
+                  example: 'good',
+                },
+              },
+            },
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -483,6 +578,10 @@ const swaggerDefinition: OpenAPIV3.Document = {
     {
       name: 'Budgets',
       description: 'Budget management endpoints',
+    },
+    {
+      name: 'Analytics',
+      description: 'Endpoints for data analysis and summaries',
     },
     {
       name: 'Home',
@@ -2244,6 +2343,108 @@ const swaggerDefinition: OpenAPIV3.Document = {
                 },
               },
             },
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
+    '/analytics/summary': {
+      get: {
+        summary: 'Get a summary of analytics data',
+        description:
+          'Retrieves a comprehensive summary of expenses, including totals, category breakdowns, recent transactions, and budget comparisons, based on a specified date range and category.',
+        tags: ['Analytics'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'startDate',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date',
+              description:
+                'The start date for the analytics period (YYYY-MM-DD).',
+              example: '2025-06-01',
+            },
+          },
+          {
+            name: 'endDate',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date',
+              description:
+                'The end date for the analytics period (YYYY-MM-DD).',
+              example: '2025-06-30',
+            },
+          },
+          {
+            name: 'categoryId',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'The ID of the category to filter by.',
+              example: '507f1f77bcf86cd799439011',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Analytics summary retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/AnalyticsSummary' },
+                    message: {
+                      type: 'string',
+                      example: 'Analytics summary retrieved successfully',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - Missing or invalid query parameters.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                examples: {
+                  missingParameter: {
+                    summary: 'Missing required parameter',
+                    value: {
+                      success: false,
+                      message: 'Start date is required',
+                    },
+                  },
+                  zodValidationError: {
+                    summary: 'Zod validation error',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'invalid_string',
+                          validation: 'date',
+                          message: 'Invalid date',
+                          path: ['query', 'startDate'],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
           },
           '500': {
             $ref: '#/components/responses/InternalServerError',

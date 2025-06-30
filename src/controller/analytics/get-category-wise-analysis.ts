@@ -27,7 +27,7 @@ export async function getCategoryWiseAnalysis(
       return;
     }
 
-    const { startDate, endDate } = parse.data.query;
+    const { startDate, endDate } = parse.data;
 
     const dateFilter: any = {};
     if (startDate) dateFilter.$gte = new Date(startDate);
