@@ -3053,6 +3053,77 @@ const swaggerDefinition: OpenAPIV3.Document = {
         },
       },
     },
+    '/analytics/trends': {
+      get: {
+        summary: 'Get spending trends for a category',
+        description:
+          'Retrieves spending trends for a specific category over the last 6 months, including monthly totals and comparisons with previous periods.',
+        tags: ['Analytics'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'categoryId',
+            in: 'query',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'The category ID to analyze.',
+              example: '507f1f77bcf86cd799439011',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Spending trends retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/CategoryTrend' },
+                    message: {
+                      type: 'string',
+                      example: 'Spending trends retrieved successfully',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - Missing or invalid category ID.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                examples: {
+                  missingCategoryId: {
+                    summary: 'Missing Category ID',
+                    value: {
+                      success: false,
+                      message: 'Category ID is required',
+                    },
+                  },
+                  invalidCategoryId: {
+                    summary: 'Invalid Category ID',
+                    value: {
+                      success: false,
+                      message: 'Invalid category ID',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
   },
 };
 
