@@ -1376,6 +1376,51 @@ const swaggerDefinition: OpenAPIV3.Document = {
           '500': { $ref: '#/components/responses/InternalServerError' },
         },
       },
+      delete: {
+        summary: 'Delete an expense',
+        description:
+          'Permanently deletes an expense belonging to the authenticated user.',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the expense',
+            },
+            description: 'Expense ID to delete',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Expense deleted successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiResponse' },
+                example: {
+                  success: true,
+                  message: 'Expense deleted successfully',
+                  data: { id: '60d5ec49fa2b5c001c8d4f1a' },
+                },
+              },
+            },
+          },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '404': {
+            description: 'Expense not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: { success: false, message: 'Expense not found' },
+              },
+            },
+          },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
     },
   },
 };
