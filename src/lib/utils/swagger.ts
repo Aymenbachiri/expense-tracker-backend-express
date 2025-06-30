@@ -16,7 +16,7 @@ const swaggerDefinition: OpenAPIV3.Document = {
   servers: [
     {
       url: 'https://expense-tracker-backend-express.vercel.app/api',
-      description: 'Local server',
+      description: 'Production server',
     },
   ],
   components: {
