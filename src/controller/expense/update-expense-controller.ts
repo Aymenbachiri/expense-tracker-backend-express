@@ -1,9 +1,9 @@
+import Expense from '../../lib/models/expense-model';
 import { getAuth } from '@clerk/express';
 import { checkCategoryOwnership } from '../../lib/helpers/check-category-ownership';
 import { checkExpenseOwnership } from '../../lib/helpers/check-expense-ownership';
 import { updateExpenseSchema } from '../../lib/schemas/expense-schema';
 import { Types } from 'mongoose';
-import Expense from '../../lib/models/expense-model';
 import type { Request, Response } from 'express';
 
 export async function updateExpense(

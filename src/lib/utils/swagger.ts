@@ -129,6 +129,20 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      UpdateExpenseRequest: {
+        type: 'object',
+        properties: {
+          amount: { type: 'number', example: 59.99 },
+          description: { type: 'string', example: 'Updated description' },
+          notes: { type: 'string', example: 'Updated notes' },
+          category: { type: 'string', example: '507f1f77bcf86cd799439011' },
+          date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-07-01T10:00:00.000Z',
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -1278,6 +1292,80 @@ const swaggerDefinition: OpenAPIV3.Document = {
           '401': { $ref: '#/components/responses/UnauthorizedError' },
           '404': {
             description: 'Expense not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: { success: false, message: 'Expense not found' },
+              },
+            },
+          },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+      put: {
+        summary: 'Update an existing expense',
+        description:
+          'Updates fields of an existing expense belonging to the authenticated user.',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the expense',
+            },
+            description: 'Expense ID to update',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/UpdateExpenseRequest' },
+              example: {
+                amount: 59.99,
+                description: 'Groceries and snacks',
+                notes: 'Included weekend treats',
+                category: '507f1f77bcf86cd799439011',
+                date: '2025-07-01T10:00:00.000Z',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Expense updated successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiResponse' },
+                example: {
+                  success: true,
+                  data: {
+                    _id: '60d5ec49fa2b5c001c8d4f1a',
+                    amount: 59.99,
+                    description: 'Groceries and snacks',
+                    notes: 'Included weekend treats',
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    date: '2025-07-01T10:00:00.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    createdAt: '2025-06-29T12:05:00.000Z',
+                    updatedAt: '2025-07-01T10:05:00.000Z',
+                  },
+                  message: 'Expense updated successfully',
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/ValidationError' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '404': {
+            description: 'Expense or category not found',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ErrorResponse' },
