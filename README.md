@@ -138,7 +138,7 @@ A secure, scalable, and well-documented Express.js backend for tracking expenses
 Access the interactive API docs at:
 
 ```
-GET http://localhost:${process.env.PORT}/api-docs
+GET https://expense-tracker-backend-express.vercel.app/api-docs
 ```
 
 ---
