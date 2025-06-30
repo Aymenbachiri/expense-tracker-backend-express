@@ -1,4 +1,3 @@
-import { requireAuth } from '@clerk/express';
 import { Router } from 'express';
 import { getAnalyticsSummary } from '../controller/analytics/get-analytics-summary';
 import { getCategoryWiseAnalysis } from '../controller/analytics/get-category-wise-analysis';
@@ -8,10 +7,10 @@ import { getYearlyBreakdown } from '../controller/analytics/get-yearly-breakdown
 
 const router: Router = Router();
 
-router.get('/summary', requireAuth(), getAnalyticsSummary);
-router.get('/monthly', requireAuth(), getMonthlyBreakdown);
-router.get('/yearly', requireAuth(), getYearlyBreakdown);
-router.get('/category-wise', requireAuth(), getCategoryWiseAnalysis);
-router.get('/trends', requireAuth(), getSpendingTrends);
+router.get('/summary', getAnalyticsSummary);
+router.get('/monthly', getMonthlyBreakdown);
+router.get('/yearly', getYearlyBreakdown);
+router.get('/category-wise', getCategoryWiseAnalysis);
+router.get('/trends', getSpendingTrends);
 
 export default router;
