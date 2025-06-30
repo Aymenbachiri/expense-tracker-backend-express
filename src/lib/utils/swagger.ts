@@ -114,6 +114,21 @@ const swaggerDefinition: OpenAPIV3.Document = {
           updatedAt: { type: 'string', format: 'date-time' },
         },
       },
+      CreateExpenseRequest: {
+        type: 'object',
+        required: ['amount', 'description', 'category', 'date'],
+        properties: {
+          amount: { type: 'number', example: 49.99 },
+          description: { type: 'string', example: 'Grocery shopping' },
+          notes: { type: 'string', example: 'Bought fruits and veggies' },
+          category: { type: 'string', example: '507f1f77bcf86cd799439011' },
+          date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-06-30T12:00:00.000Z',
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -1145,6 +1160,70 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
           '400': { $ref: '#/components/responses/ValidationError' },
           '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+      post: {
+        summary: 'Create a new expense',
+        description: 'Creates a new expense record for the authenticated user.',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/CreateExpenseRequest' },
+              example: {
+                amount: 49.99,
+                description: 'Grocery shopping',
+                notes: 'Weekly fruits',
+                category: '507f1f77bcf86cd799439011',
+                date: '2025-06-30T12:00:00.000Z',
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Expense created successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiResponse' },
+                example: {
+                  success: true,
+                  data: {
+                    _id: '60d5ec49fa2b5c001c8d4f1a',
+                    amount: 49.99,
+                    description: 'Grocery shopping',
+                    notes: 'Weekly fruits',
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    date: '2025-06-30T12:00:00.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    createdAt: '2025-06-30T12:05:00.000Z',
+                    updatedAt: '2025-06-30T12:05:00.000Z',
+                  },
+                  message: 'Expense created successfully',
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/ValidationError' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '404': {
+            description: 'Category not found or unauthorized',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: {
+                  success: false,
+                  message: 'Category not found or does not belong to user',
+                },
+              },
+            },
+          },
           '500': { $ref: '#/components/responses/InternalServerError' },
         },
       },
