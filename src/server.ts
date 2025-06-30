@@ -8,7 +8,6 @@ import AnalyticsRoute from './routes/analytics-route';
 import BudgetRoute from './routes/budget-route';
 import swaggerUi from 'swagger-ui-express';
 import { clerkMiddleware } from '@clerk/express';
-import { PORT } from './config/config';
 import { rateLimiter } from './lib/utils/rate-limiter';
 import { connectToMongoDB } from './lib/db/mongoose';
 import { swaggerSpec } from './lib/utils/swagger';
@@ -43,20 +42,14 @@ app.use(
   swaggerUi.setup(swaggerSpec, swaggerUiOptions),
 );
 
-(async () => {
-  try {
-    await connectToMongoDB();
+app.use('/api', HomeRoute);
+app.use('/api/category', CategoryRoute);
+app.use('/api/expenses', ExpenseRoute);
+app.use('/api/budgets', BudgetRoute);
+app.use('/api/analytics', AnalyticsRoute);
 
-    app.use('/api', HomeRoute);
-    app.use('/api/category', CategoryRoute);
-    app.use('/api/expenses', ExpenseRoute);
-    app.use('/api/budgets', BudgetRoute);
-    app.use('/api/analytics', AnalyticsRoute);
+connectToMongoDB().catch((err) => {
+  console.error('MongoDB connection error:', err);
+});
 
-    app.listen(PORT, () => {
-      console.log(`Server is running http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Server error', error);
-  }
-})();
+export default app;

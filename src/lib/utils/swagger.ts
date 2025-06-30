@@ -13,7 +13,12 @@ const swaggerDefinition: OpenAPIV3.Document = {
       email: 'aymen.bachiri99@gmail.com',
     },
   },
-  servers: [{ url: 'http://localhost:3000/api', description: 'Local server' }],
+  servers: [
+    {
+      url: 'https://expense-tracker-backend-express.vercel.app/api',
+      description: 'Local server',
+    },
+  ],
   components: {
     securitySchemes: {
       ClerkAuth: {
