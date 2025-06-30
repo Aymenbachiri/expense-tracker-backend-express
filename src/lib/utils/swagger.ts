@@ -659,6 +659,163 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      CategoryAnalysisDetail: {
+        type: 'object',
+        description: 'Detailed analysis for a single category.',
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'The category ID.',
+            example: '507f1f77bcf86cd799439011',
+          },
+          name: { type: 'string', example: 'Groceries' },
+          color: { type: 'string', nullable: true, example: '#4CAF50' },
+          icon: { type: 'string', nullable: true, example: 'shopping_cart' },
+          total: {
+            type: 'number',
+            description: 'Total amount spent in this category.',
+            example: 1234.56,
+          },
+          count: {
+            type: 'number',
+            description: 'Total number of transactions.',
+            example: 25,
+          },
+          avgAmount: {
+            type: 'number',
+            description: 'Average transaction amount.',
+            example: 49.38,
+          },
+          maxAmount: { type: 'number', example: 150.0 },
+          minAmount: { type: 'number', example: 5.25 },
+          percentage: {
+            type: 'number',
+            description:
+              'The percentage this category represents out of the total spending in the period.',
+            example: 22.5,
+          },
+          expenses: {
+            type: 'array',
+            description: 'A list of up to 5 recent expenses for this category.',
+            items: {
+              type: 'object',
+              properties: {
+                amount: { type: 'number', example: 75.2 },
+                date: { type: 'string', format: 'date-time' },
+                description: { type: 'string', example: 'Weekly grocery run' },
+              },
+            },
+          },
+        },
+      },
+      CategoryTrend: {
+        type: 'object',
+        description:
+          'Spending trend data for a category over the last 6 months.',
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'The category ID.',
+            example: '507f1f77bcf86cd799439011',
+          },
+          name: { type: 'string', example: 'Groceries' },
+          color: { type: 'string', nullable: true, example: '#4CAF50' },
+          monthlyData: {
+            type: 'array',
+            description: 'Monthly spending totals for this category.',
+            items: {
+              type: 'object',
+              properties: {
+                year: { type: 'number', example: 2025 },
+                month: { type: 'number', example: 6 },
+                total: { type: 'number', example: 250.75 },
+                count: { type: 'number', example: 5 },
+              },
+            },
+          },
+        },
+      },
+      CategoryWiseAnalysisSummary: {
+        type: 'object',
+        description: 'A high-level summary of the category analysis.',
+        properties: {
+          totalCategories: {
+            type: 'number',
+            description: 'The total number of categories the user has.',
+            example: 12,
+          },
+          activeCategories: {
+            type: 'number',
+            description:
+              'The number of categories with expenses in the period.',
+            example: 9,
+          },
+          inactiveCategories: {
+            type: 'number',
+            description:
+              'The number of categories with no expenses in the period.',
+            example: 3,
+          },
+          totalSpent: {
+            type: 'number',
+            description: 'The total amount spent across all categories.',
+            example: 5486.94,
+          },
+          avgSpentPerCategory: {
+            type: 'number',
+            description: 'The average amount spent per active category.',
+            example: 609.66,
+          },
+          mostExpensiveCategory: {
+            $ref: '#/components/schemas/CategoryAnalysisDetail',
+            nullable: true,
+            description: 'The category with the highest total spending.',
+          },
+          leastExpensiveCategory: {
+            $ref: '#/components/schemas/CategoryAnalysisDetail',
+            nullable: true,
+            description: 'The active category with the lowest total spending.',
+          },
+        },
+      },
+      CategoryWiseAnalysis: {
+        type: 'object',
+        description: 'The main data object for the category-wise analysis.',
+        properties: {
+          summary: {
+            $ref: '#/components/schemas/CategoryWiseAnalysisSummary',
+          },
+          categories: {
+            type: 'array',
+            description:
+              'An array containing analysis for all user categories (both active and inactive).',
+            items: { $ref: '#/components/schemas/CategoryAnalysisDetail' },
+          },
+          topCategories: {
+            type: 'array',
+            description: 'The top 5 spending categories.',
+            items: { $ref: '#/components/schemas/CategoryAnalysisDetail' },
+          },
+          trends: {
+            type: 'array',
+            description:
+              'Spending trends for all categories over the last 6 months.',
+            items: { $ref: '#/components/schemas/CategoryTrend' },
+          },
+          period: {
+            type: 'object',
+            description: 'The date range used for the analysis.',
+            properties: {
+              startDate: {
+                type: 'string',
+                format: 'date-time',
+                nullable: true,
+              },
+              endDate: { type: 'string', format: 'date-time', nullable: true },
+            },
+          },
+        },
+      },
       ApiResponse: {
         type: 'object',
         properties: {
@@ -2813,6 +2970,82 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
           '401': {
             $ref: '#/components/responses/UnauthorizedError',
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
+    },
+    '/analytics/category-wise': {
+      get: {
+        summary: 'Get a detailed analysis of expenses by category',
+        description:
+          'Retrieves an in-depth analysis of spending across all user categories for an optional date range. Includes overall summaries, detailed stats for each category, top-spending categories, and spending trends over the last 6 months.',
+        tags: ['Analytics'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'startDate',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              format: 'date',
+              description:
+                'The start date for the analysis (YYYY-MM-DD). If omitted, all transactions from the beginning are considered.',
+              example: '2025-01-01',
+            },
+          },
+          {
+            name: 'endDate',
+            in: 'query',
+            required: false,
+            schema: {
+              type: 'string',
+              format: 'date',
+              description:
+                'The end date for the analysis (YYYY-MM-DD). If omitted, transactions up to the current date are considered.',
+              example: '2025-06-30',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Category-wise analysis retrieved successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    data: { $ref: '#/components/schemas/CategoryWiseAnalysis' },
+                    message: {
+                      type: 'string',
+                      example: 'Category-wise analysis retrieved successfully',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            $ref: '#/components/responses/ValidationError',
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description: 'No categories have been created by the user yet.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: {
+                  success: false,
+                  message: 'No categories found for user',
+                },
+              },
+            },
           },
           '500': {
             $ref: '#/components/responses/InternalServerError',
