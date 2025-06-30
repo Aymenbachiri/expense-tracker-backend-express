@@ -2155,6 +2155,101 @@ const swaggerDefinition: OpenAPIV3.Document = {
           },
         },
       },
+      delete: {
+        summary: 'Delete a budget by its ID',
+        description:
+          'Permanently deletes a budget belonging to the authenticated user. This action cannot be undone.',
+        tags: ['Budgets'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'The MongoDB ObjectId of the budget to delete.',
+            schema: {
+              type: 'string',
+              example: '60d0fe4f5311236168a109ca',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Budget deleted successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                  },
+                },
+                example: {
+                  success: true,
+                  message: 'Budget deleted successfully',
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad Request - The provided budget ID is invalid.',
+            content: {
+              'application/json': {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/schemas/ErrorResponse' },
+                    { $ref: '#/components/schemas/ValidationError' },
+                  ],
+                },
+                examples: {
+                  zodValidationError: {
+                    summary: 'Validation Error from Zod',
+                    value: {
+                      success: false,
+                      message: [
+                        {
+                          code: 'custom',
+                          message: 'Invalid budget ID format',
+                          path: ['id'],
+                        },
+                      ],
+                    },
+                  },
+                  invalidId: {
+                    summary: 'Invalid ID from Controller Check',
+                    value: {
+                      success: false,
+                      message: 'Invalid budget ID',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          '401': {
+            $ref: '#/components/responses/UnauthorizedError',
+          },
+          '404': {
+            description:
+              'Not Found - The budget with the specified ID was not found.',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse',
+                },
+                example: {
+                  success: false,
+                  message: 'Budget not found',
+                },
+              },
+            },
+          },
+          '500': {
+            $ref: '#/components/responses/InternalServerError',
+          },
+        },
+      },
     },
   },
 };
