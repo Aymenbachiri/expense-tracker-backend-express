@@ -20,7 +20,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:3000',
-      'https://expense-tracker-backend-express.vercel.app/',
+      'https://expense-tracker-backend-express.vercel.app',
     ],
   }),
 );
