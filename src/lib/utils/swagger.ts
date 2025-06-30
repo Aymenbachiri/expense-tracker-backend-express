@@ -1228,6 +1228,67 @@ const swaggerDefinition: OpenAPIV3.Document = {
         },
       },
     },
+    '/expenses/{id}': {
+      get: {
+        summary: 'Get a single expense by ID',
+        description:
+          'Retrieves a single expense record belonging to the authenticated user by its MongoDB ObjectId.',
+        tags: ['Expenses'],
+        security: [{ ClerkAuth: [] }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              description: 'MongoDB ObjectId of the expense',
+            },
+            description: 'Expense ID to retrieve',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Expense retrieved successfully',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ApiResponse' },
+                example: {
+                  success: true,
+                  data: {
+                    _id: '60d5ec49fa2b5c001c8d4f1a',
+                    amount: 49.99,
+                    description: 'Grocery shopping',
+                    notes: 'Bought fruits and veggies',
+                    category: {
+                      _id: '507f1f77bcf86cd799439011',
+                      name: 'Food & Dining',
+                    },
+                    date: '2025-06-29T12:00:00.000Z',
+                    userId: 'user_2abcdefghijklmnop',
+                    createdAt: '2025-06-29T12:05:00.000Z',
+                    updatedAt: '2025-06-29T12:05:00.000Z',
+                  },
+                  message: 'Expense retrieved successfully',
+                },
+              },
+            },
+          },
+          '400': { $ref: '#/components/responses/ValidationError' },
+          '401': { $ref: '#/components/responses/UnauthorizedError' },
+          '404': {
+            description: 'Expense not found',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                example: { success: false, message: 'Expense not found' },
+              },
+            },
+          },
+          '500': { $ref: '#/components/responses/InternalServerError' },
+        },
+      },
+    },
   },
 };
 
