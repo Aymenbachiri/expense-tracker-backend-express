@@ -11,6 +11,7 @@ import { clerkMiddleware } from '@clerk/express';
 import { rateLimiter } from './lib/utils/rate-limiter';
 import { connectToMongoDB } from './lib/db/mongoose';
 import { swaggerSpec } from './lib/utils/swagger';
+import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 
 const app = express();
 
@@ -28,13 +29,34 @@ app.use(helmet());
 app.use(rateLimiter);
 app.use(clerkMiddleware());
 
-const swaggerUiOptions = { explorer: true };
+const theme = new SwaggerTheme();
 
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, swaggerUiOptions),
-);
+const swaggerUiOptions = {
+  explorer: true,
+  swaggerOptions: {
+    url: '/api-docs/swagger.json',
+  },
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui { 
+      background-color: #1a1a1a; 
+      color: #ffffff; 
+    }
+    .swagger-ui .scheme-container { 
+      background-color: #2a2a2a; 
+      border: 1px solid #3a3a3a; 
+    }
+  `,
+  customSiteTitle: 'Expense Tracker API Documentation',
+  customfavIcon: '/favicon.ico',
+};
+app.get('/api-docs/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.use('/api', HomeRoute);
 app.use('/api/category', CategoryRoute);
